@@ -1,0 +1,70 @@
+---
+sidebar_position: 1
+---
+
+# Environment
+
+## Properties
+
+<details>
+  <summary>Environment(Agent Properties)</summary>
+  <div>
+    <div>
+        ```python showLineNumbers title="environment.py"
+        class Environment(mesa.Agent) -> None:
+            """The Environment agent."""
+
+            def __init__(self, unique_id, model):
+                super().__init__(unique_id, model)
+                
+                self.breed = "Environment"
+                self.period = 0 # Model run step.
+                
+                # See https://en.wikipedia.org/wiki/Names_of_large_numbers
+                # (10^21) One sextillion units of available (stock) fossil hydrocarbon energy.
+                self.units_stock_energy = Decimal(1000_000_000_000_000_000_000)
+
+                # Stock energy geopolitics:
+                # The 'ase' relates to the availability of stock (fossil hydrocarbon) energy.
+                # A number; from least to most available: 0.01 >= 'ase' <= 1.0.
+                self.availability_stock_energy = Decimal(1)
+
+                # Environment (Negative Externality):
+                self.cumulative_neg_externality = Decimal(0) # Use of stock energy.
+                # 3% of stock energy is environmental negative externality.
+                self.cumulative_neg_externality_rate = Decimal(0.03)
+
+                # Start with an amount of renewable energy (units).
+                self.flow_energy_base = Decimal(5)
+
+                # Units of available (stored) renewable energy.
+                self.units_flow_energy = Decimal(0)
+        ```
+    </div>
+  </div>
+</details>
+
+## Behaviour Comments
+
+<details>
+  <summary>Environment(Agent Comments)</summary>
+  <div>
+    <div>
+        ```python showLineNumbers title="environment.py"
+        def step(self):
+            """
+            Functions (each and every step):
+            1. Add newly generated (renewable) energy to the mix.
+            """
+
+            # See https://www.statista.com/outlook/io/energy/renewable-energy/worldwide
+            growth_flow_energy = Decimal(0.0388) # 3.88%
+
+            # Add newly generated (renewable / flow) energy.
+            self.units_flow_energy += self.flow_energy_base
+            self.flow_energy_base = (self.flow_energy_base + (self.flow_energy_base
+                                                              * growth_flow_energy))
+        ```
+    </div>
+  </div>
+</details>

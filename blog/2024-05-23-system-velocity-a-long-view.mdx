@@ -1,0 +1,59 @@
+---
+slug: system-velocity-a-long-view
+title: System Velocity - A Long View
+authors: [danodriscoll]
+tags: [analysis, abmlp-x]
+---
+
+## The Velocity and Acceleration of Supply: New Bills Issued
+
+A simple analysis of the *velocity* and *acceleration* of a Government money system - the new bills issued - alongside real-world UK Gilt dynamics from the second quarter of 1974.
+
+<!--truncate-->
+
+:::info Gilt
+
+A gilt is a UK Government liability denominated in sterling, issued by the UK Treasury and listed on the London Stock Exchange. The term "gilt" or "modern-money security" is a reference to the primary characteristic of gilts as an investment: their security.
+
+:::
+
+### Model Run Parameter Inputs
+
+See [model runs](https://docs.google.com/spreadsheets/d/e/2PACX-1vRjjK62BFLfv9bvJb9JLxP0ko_xFBoTSgA0G23Ks4cwArnmkOcT7ik57SPETeLpCQyXMzJM_RCDplop/pubhtml?gid=1130413788&single=true).
+
+A model run free from interest payments on Government money.
+
+- Model: ABMLP-X
+- Model Run: virgo-420-23-05-2024
+- Government Expenditure: See *Model Input: Real-World Expenditures* from the [time-series](/docs/tools/time-series) page.
+- Number of Producers: 90
+- Number of Households: 100
+- Taxation rate: 37% (Flat rate; all household agents)
+- Coupon Rate: 0%
+- Interest Rate: 0%
+
+### Velocity & Acceleration of Model Bills Issued
+
+```python showLineNumbers title="velocity.py"
+"""
+Change in bills issued, from one period to the next,
+as percentage of national income.
+"""
+import numpy as np
+
+velocity_bills = np.diff(df["bills_issued"])
+df["velocity_bills_issued"] = ((abs(velocity_bills)
+                                / df["national_income"])
+                                * 100)
+```
+
+```python showLineNumbers title="acceleration.py"
+acceleration_bills = np.diff(df["velocity_bills_issued"])
+```
+
+### Analysis Charts & Notes
+
+1. The [velocity](https://www.data-reports.net/modern-money-studio/virgo-420-23-05-2024-analysis-velocity.html) of model bills issued
+2. The [acceleration](https://www.data-reports.net/modern-money-studio/virgo-420-23-05-2024-analysis-acceleration.html) of model bills issued
+
+The *velocity* of model bills issued chart shows two periods, among others, where the *velocity* of model bills leads to a similar reaction in the real-world Gilt yield. The period between July 1997 and July 2003, however, shows the trend *velocity* of model bills issued increasing while the trend Gilt yield is decreasing. When looking at the *acceleration* of model bills issued chart, we see that across the same period there is actually a *negative acceleration* trend occurring. The *velocity* of bills issued may be increasing, but the system is experiencing *negative acceleration* - to which Gilt yields may be reacting.

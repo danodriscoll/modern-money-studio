@@ -1,0 +1,79 @@
+---
+sidebar_position: 5
+---
+
+# Central Bank
+
+## Properties
+
+```python showLineNumbers title="central-bank.py"
+class CentralBank(mesa.Agent):
+    """A Central Bank agent."""
+
+    def __init__(self, rate_data, unique_id, model):
+        super().__init__(unique_id, model)
+        
+        self.breed = "Central Bank"
+        self.period = 0 # Model run step.
+
+        # Importing the rates dataframe into the class.
+        self.rate_data = rate_data
+
+        # (rb) Rate of interest in the economy. A percentage.
+        self.base_rate = Decimal(0)
+        self.base_rate_last_step = Decimal(0)
+
+        # Current accounts
+        # (INTcb) Interest received on Government bills held.
+        self.interest_from_bills = Decimal(0)
+        # (Fcb) Central bank profits to distribute to Government.
+        self.profits = Decimal(0)
+
+        # Capital accounts
+        # (Bcbd) Government bills held. A residual, after household bill demands.
+        self.bills_demanded = Decimal(0)
+        # (Hs) High-powered money supplied to households.
+        self.high_powered_money = Decimal(0)
+        self.high_powered_money_last_step = Decimal(0)
+```
+
+## Behaviour Comments and Functions
+
+```python showLineNumbers title="central-bank.py"
+def step(self):
+    """
+    1 Set the rate of interest on bills.
+    2 Distribute profit on Government bills back to the Government. (t-1)
+    3 Purchase government bills surplus to household requirements. (t)
+    """
+    # Record the interest rate before update in this step, if any.
+    self.base_rate_last_step = self.base_rate
+
+    # 1
+    # Historic rates.
+    self.base_rate = Decimal(float(self.rate_data['value'].iloc[self.period]))
+
+    # 2
+    # Connect with the government.
+    government = self.model.get_agents_of_type(Government)[0]
+    # Interest received from government.
+    self.profits = abs(self.interest_from_bills)
+    # Distribute profit to government.
+    government.central_bank_profits += self.profits
+
+    # 3
+    """
+    (Equation 5.15) ΔHs ≡ Hs - Hs₋₁ = ΔBcb
+
+    The amount of cash money supplied by the central bank is simply equal to the
+    amount of bills purchased by the central bank.
+    """
+    self.bills_demanded = self.high_powered_money - self.high_powered_money_last_step
+    government.bills_issued_to_central_bank = self.bills_demanded
+
+    # Complete Central Bank actions in this step.
+    self.high_powered_money_last_step = self.high_powered_money
+
+    # Model step counter used for real-world base rate data.
+    self.period += 1
+```

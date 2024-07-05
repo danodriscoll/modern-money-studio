@@ -1,0 +1,161 @@
+---
+sidebar_position: 4
+---
+
+# Household
+
+## Taxation and Investment Strategies
+
+At every step a Household will decide on the amount of (wage) taxation it will pay, that is, a percentage of total tax owed on the wage received in the current step. Second, a Household will update its current wealth before deciding how much of that wealth to keep as cash money. Any remaining wealth is invested between the available portfolio of interest-bearing money assets.
+
+## Properties
+
+<details>
+  <summary>Household(Agent Properties)</summary>
+  <div>
+    <div>
+        ```python showLineNumbers title="household.py"
+        class Household(mesa.Agent):
+            """A Household agent."""
+
+            def __init__(self, num_household, unique_id, model):
+                super().__init__(unique_id, model)
+                
+                self.breed = "Household"
+                self.type = "gamma" # The default Household agent 'type'.
+                self.period = 0 # Model run step.
+
+                # (W_Ns) Wage supplied.
+                self.wage_rate_supplied = Decimal(0)
+                # (Cd) Consumption demands.
+                self.consumption_goods_demanded = Decimal(0)
+                # (Ts) Taxes supplied.
+                self.taxation_revenue_supplied = Decimal(0)
+
+                # (Vh) Wealth, in nominal terms.
+                self.wealth = Decimal(0)
+                # (Hd) A non-interest bearing money account, aka, high-powered money.
+                self.cash_money = Decimal(0)
+                self.disposable_income = Decimal(0) # (YD) Disposable Income.
+
+                """ Interest-bearing bills and long-term bonds. """
+                # (Bhd) Interest-bearing bills demanded by households.
+                self.bills_demanded = Decimal(0)
+                # (INTh) Total interest received on interest-bearing bills held.
+                self.interest_from_bills = Decimal(0)
+                # (BLd) Consols (Long-term bonds) demanded by households.
+                self.bonds_demanded = Decimal(0)
+                # (INT_BLd) The bond coupon interest revenue.
+                self.interest_from_bonds = Decimal(0)
+                # (CG) Capital gains / losses on long-term bonds.
+                self.capital_gains = Decimal(0)
+                # (RrbL) The overall rate of return on a long-term bond
+                # (Interest revenue plus capital gain / loss).
+                self.overall_rate_of_return_bonds = Decimal(0)                
+
+                """ Agent expectations regarding long-term bonds. """
+                # (χ) Weight of conviction in expected bond prices (Chi).
+                # Default is 1; total conviction in expectations.
+                self.chi = 1
+                # (PebL) The expected price of a bond in the next step.
+                self.expected_bond_price = Decimal(0)
+                # (expected_coupon_rate) A percentage.
+                self.expected_coupon_rate = Decimal(0)
+                # (ERrbL) The expected rate of return (bond yield).
+                self.expected_bond_yield = Decimal(0)
+                # (CGe) Expected capital gains.
+                self.expected_capital_gains = Decimal(0)
+
+                # Default employment status.
+                self.is_employed = False
+
+                # Number of households in the system.
+                self.num_households = Decimal(num_household)
+        ```
+    </div>
+  </div>
+</details>
+
+## Behaviour Comments
+
+<details>
+  <summary>Household(Agent Comments)</summary>
+  <div>
+    <div>
+        ```python showLineNumbers title="household.py"
+        def step(self):
+            """
+            Household Functions (each and every step):
+            1 Calculate disposable income, the wage, interest and coupon payments received minus tax.
+            2 Consumption Decision: Decide how much to save out of income.
+            3 Calculate new wealth including capital gains or losses this step.
+            4 Agent Bond Price Expectations: Freeze expectations.
+            5 Rebalance asset portfolio:
+                Liquidity preference. Two traditions:
+                Quantity theory of money: Link money balances to the flow of income.
+                Make money balances some proportion of wealth.
+            """
+        ```
+    </div>
+  </div>
+</details>
+
+## Taxation Arrangements
+
+The model has two taxation arrangements for the return of Household agent wage and interest income. The flat and marginal rate arrangements return the income of Households in accordance with either a single fixed, or array of percentages.
+
+### Flat & Marginal Arrangement Comparison
+
+Using an example model test run to compare the tax to be returned under either the flat rate or marginal rate arrangement. The average wage for all Households at model step 6 was: **3625.31**
+
+*Three example Households:*
+| Household Unique ID | Wage Supplied | Flat Rate (37%) Tax Return | Marginal Rate Tax Return |
+| :-------------- | :------------ | :------------------------- | :----------------------- |
+| 5               | 4023.58       | 1488.72                    | 1366.38                  |
+| 10              | 2438.05       | 902.08                     | 375.24                   |
+| 8               | 6203.24       | 2295.20                    | 2892.14                  |
+
+### Household Agent ID 8: Marginal Rate Tax Return Breakdown
+
+50% of historical average wage amount at step 6: (**3625.31** / 2) = **1812.65**
+
+1. No tax on wage amount up to the first 50% of the historical average wage amount.
+2. Tax on wage amount that is between 50% and 100% of the historical average wage amount (**1812.65** * 60%) = **1087.59**
+3. Tax on wage amount that exceeds 100% of the historical average wage amount ((**6203.24** - **3625.31**) * 70%) = **1804.55**
+
+### Taxation Strategy
+
+The effect of any taxation strategy that results in a payment percentage of less than 1 - `payment_percentage < 1` - (see household *Taxation Strategy* logic) can be similar to what Godley & Lavoie (G&L) remind us about the interest rate on page 160 of their book, Monetary Economics:
+
+A key feature of the models (see ABMSIM and ABMPC tests) presented so far is that pure government expenditures are assumed to be exogenous. Still there is no reason to believe that pure government expenditures are impervious to what is going on in the rest of the economy. G&L describe in detail the initial negative effects of higher interest rates on the Government budget deficit; effects that are eventually reversed in the early models where Government expenditures were impervious to the apparition of larger budget deficits. ..But this may not necessarily be so. Atul Sood (1999) has shown that high real interest rates lead to higher Government deficits in the short run, as must obviously be the case, but he has also shown that these higher interest rates often lead to reduced primary deficits, that is to higher primary surpluses.
+
+In other words, at some point, when the deficit gets too large, the Government will aim at controlling the public deficit, and to do so will reduce its pure government expenditures.
+
+## The Portfolio Decision
+
+The interest rate offered will affect the composition of a household agent's asset portfolio. Model households now have a third financial asset in which to invest. Household agents will choose, based on their expectations and liquidity preferences, to allocate wealth between money, bills and long-term government bonds.
+
+### Long-Term Bonds
+
+View the long-term [bond framework](https://docs.google.com/spreadsheets/d/1_3DX1j2vghMV8354_DmjBqt3wyg2AwMdvVSd2qtlaC4/edit#gid=1976813024).
+
+**Mirroring Godley & Lavoie (G&L) pp 133 — 135**
+
+When household agents make their long-term bond decisions, three features matter. First households are concerned with the price that the long-term bond fetches in the current period, for this defines the yield of the asset which will arise in the next period (model step). Second, what also matters is the expected price of the bond in the next period, when it will be possible to sell the bond. These two prices help define what we shall call the pure expected rate of return on bonds (ERrbL). The third factor is the confidence with which households hold their expectations about future bond prices. In a model where there may be a multiplicity of household agent opinions, it is a measure of the weight that households investors attribute to the validity of their expectations.
+
+#### On Agents and Rate Expectations Logic
+
+In every step, Households interact with other Households to discuss their expected rate of return (ERrbL) for the next period (step). One third of Households created will predict a higher ERrbL 33 percent of the time (on average), a lower ERrbL 33 percent of the time (on average) leaving the default expectation of ERrbL to remain the same as it is in the current step. The next third of Households factor the base rate set for the previous five steps into their expectations logic. The final third of Households created have access to previous rates in addition to logic that employs model system velocity and acceleration, that is, the new bills issued by Government as a percentage of national income in every previous step.
+
+#### Opinions: Wealth Perception & Taxation
+
+Household agents think about their overall wealth and taxation. To assist thinking, Households discuss their wealth with other Households. Though it may only communicate with another of the same type, a Household has no preference for which other agent it will contact. Agents communicate on a random choice basis. A feature of Household ‘wealth’ discussions: When contacted, there is a ten percent chance the Household spoken to will inform that its wealth is between 1 percent and 5 percent greater than the actuality. A five percent chance it will say it is between 1 percent and 5 percent less wealthy. Households will accurately state their wealth, on average, eighty-five percent of the time.
+
+*Household wealth by type showing mutually exclusive possibilities a Household will advocate for a lower rate of taxation*
+| Wealth in Current Step            | Alpha Household    | Beta Household    | Gamma Household   |
+| :-------------------------------- | :----------------- | :---------------- | :---------------- |
+| Is > Own Previous Step Wealth     | 80 to 85% of time  | 70 to 75% of time | 60 to 65% of time |
+| Is >= Other Household Wealth      | 86 to 95% of time  | 76 to 85% of time | 66 to 75% of time |
+| Is < Other Household Wealth by 5% | 96 to 100% of time | 86 to 95% of time | 76 to 85% of time |
+
+View Household agent [behavioural logic](/blog/tags/household).

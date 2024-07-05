@@ -1,0 +1,156 @@
+---
+sidebar_position: 2
+---
+
+# ABMPC
+
+Agent-Based Portfolio Choice is an interpretation of the second sectoral system described by G&L. View the model [accounting](https://docs.google.com/spreadsheets/d/1f2picRBpByjb77flxEGjCrZ9Ych3ctrqBSqy90PR6LM/edit?usp=sharing).
+
+The model sees household agents make a portfolio choice between non-interest bearing (high-powered) money bills and interest bearing bills akin to government treasury bills. The interest rate offered will affect the composition of a household agent’s asset portfolio.  That is, the proportion of interest-bearing assets to money an agent will decide to hold.
+
+## Household Agent Comments
+
+<details>
+  <summary>Household Code Comments</summary>
+  <div>
+    <div>
+        ```python showLineNumbers title="agents.py"
+        class Household(Agent):
+            self.breed = "Household"
+
+            def step(self) -> None:
+                '''
+                ABMPC Household Functions (each and every iteration):
+                1 Calculate disposable income, the wage & interest received minus tax.
+                2 Consumption Decision: Decide how much to save out of income.
+                3 Portfolio Decision: Calculate wealth and allocate between money and bills.
+                    Two Traditions:
+                    Quantity theory of money: Link money balances to the flow of income.
+                    Liquidity preference: Make money balances some proportion of wealth.
+                '''
+
+                # 2
+                '''
+                G&L Equations, p104:
+
+                α1 : Propensity to consume out of regular income.
+                α2 : Propensity to consume out of past wealth.
+                λ : Reaction parameters in the portfolio choice of households.
+                λ0 : Proportion of wealth held in bills.
+                (1 - λ0) : Proportion of wealth held in central bank deposits (high-powered money).
+
+
+                (4.4) V = V_-1 + (YD - C):
+                New wealth is past wealth plus disposable income minus consumption.
+
+                (4.5) C = α1 * YD + α2 * V_-1:
+                        Propensity to consume out of disposable income
+                        + propensity to consume out of past wealth.
+                (4.6) Hh = V - Bh
+                (4.7) Bh/V = λ0 + λ1 * r - λ2 * (YD/V)
+                '''
+
+                # 3
+                '''
+                Proportion of money balances modulated by two elements:
+                    1: The rate of return r on bills.
+                    2: The level of disposable income (YD) relative to wealth.
+
+                    G&L p104: The share of wealth which agents wish to hold in the
+                    form of money deposits is negatively related to the interest rate
+                    and positively related to disposable income.
+
+                    Reverse: The share of wealth which agents wish to hold in the form
+                    of bills is positively related to the interest rate and negatively
+                    related to disposable income.
+
+                    (Translation: 1. The share of wealth an agent will wish to hold as
+                    bills will increase with a higher interest rate. Therefore, a lower
+                    proportion of wealth will be held as deposits. If the interest rate
+                    decreases, an agent will lower the proportion of their wealth held as bills,
+                    which will increase, as a residual, the proportion held as deposits.)
+
+                    (Translation: 2. The lower the level of disposable income to wealth,
+                    the higher the proportion of their wealth an agent will wish to hold as bills.
+                    The higher the level of disposable income to wealth, the lower the proportion
+                    of their wealth an agent will wish to hold as bills, and as a residual,
+                    the higher will be the proportion held as deposits.)
+                '''
+        ```
+    </div>
+  </div>
+</details>
+
+## The Portfolio Decision
+
+Mirroring Godley & Lavoie (G&L) pp 103 — 105.
+
+Households make a two stage decision.  In the first step, households decide how much they will save out of their income.  In the second step, households decide how they will allocate their wealth, including their newly acquired wealth.  The two decisions are made within the same model iteration.  However, the two decisions are distinct and of a hierarchical form.  The consumption decision determines the size of the end of period stock of wealth; the portfolio decision determines the allocation of the stock of wealth.
+
+How is wealth allocated between money and bonds?  Two traditions have prevailed.  One related to the quantity theory of money, links money balances to the flow of income and the other, of more recent vintage, makes money balances some proportion of total wealth.  The latter is related to the Keynesian notion of liquidity preference.  The lower is liquidity preference, the lower is the money to wealth ratio.
+
+The transactions demand for money and the liquidity preference story may both be comprised within a single model.  Households wish to hold a certain proportion λ0 of their wealth in the form of interest-bearing bills, and hence, because there is no third asset, a proportion equal to (1 - λ0) in the form of money.  This proportion, however, is modulated by two elements, the rate of return on Treasury bills and the level of disposable income relative to wealth.
+
+## Wealth Allocation Function
+
+Allocation function *PropIntBills* incorporates an interpretation of G&L's Brainard-Tobin formula, slightly amended. ABMPC can run with multiple producers and households. In this system, household agents may face period(s) of unemployment with no knowledge of when they may be employed once again. If unemployed, an agent's disposable income will fall, leading (probably) to the denominator in the *wealth to income* calculation becoming immediately smaller than the numerator; blowing up G&L's interpretation of Brainard-Tobin. Therefore, if unemployed, a household agent will adjust its allocation of interest-bearing assets to money deposits based on a *wealth to system average income* calculation.
+
+```python showLineNumbers title="abmpc-portfolio-function.py"
+"""
+See Godley & Lavoie, Monetary Economics, p104.
+Serves a model run with either one producer and one household agent, or multiple agents,
+with household agents facing the possibility of unemployment.
+"""
+
+# Utility: Catch divide by zero error.
+def zero_division(n, d):
+    return n / d if d else 0
+
+# The proportion of wealth a household agent will allocate to interest-bearing bills:
+def PropIntBills(employed, Bhd, V, YD, YD_average, last_rb, rb):
+    agent_employed = employed
+    prop_bills_last = Bhd # (t-1)
+    wealth = V
+    disposable_income = YD
+    average_disposable_income = YD_average # System average disp income.
+    int_rate_last = last_rb # (t-1)
+    int_rate = rb
+    
+    rb_change = (zero_division(int_rate - int_rate_last, int_rate_last) * 100)
+
+    wealth_income_ratio = zero_division(wealth, disposable_income)
+    wealth_average_income_ratio = zero_division(wealth, average_disposable_income)
+
+    if agent_employed:        
+        # Approximating the Brainard-Tobin formula, slightly amended.
+        # See Godley & Lavoie, Monetary Economics, p104.        
+        prop_bills = (((wealth * (1 - wealth_income_ratio))
+                    + (prop_bills_last
+                    * (1 + (rb_change / 100))))
+                    * wealth_income_ratio)
+    else:
+        # Portfolio decision during a period of unemployment.
+        prop_bills = ((wealth * wealth_average_income_ratio) * (1 + (rb_change / 100)))
+
+    # Limit maximum prop wealth going to interest-bearing bills to whole of wealth.
+    if prop_bills < wealth:
+        prop_bills_this = prop_bills
+    else:
+        prop_bills_this = wealth
+    
+    return prop_bills_this
+```
+
+## Steady State System
+
+:::tip Test Data App
+
+Visit the shareable Hugging Face space, [abmpc-test](https://danodrisc-abmpc-test.hf.space), to view the test output of agent-based model simple.
+
+:::
+
+:::info System Context
+
+View a sketch of ABMPC within a [macro-financial](https://www.data-reports.net/studio-sketch/public-private-finance.html) context.
+
+:::

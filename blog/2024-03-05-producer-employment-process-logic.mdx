@@ -1,0 +1,43 @@
+---
+slug: producer-employment-process-logic
+title: Producer Employment Process Logic
+hide_table_of_contents: false
+authors: [danodriscoll]
+tags: [abmlp-x, producer, agent-logic]
+---
+
+ABMLP-X Producer of Household agents: March 2024.
+
+<!--truncate-->
+
+## Household Employment
+
+Every Producer will seek to employ one unemployed Household.
+
+```python showLineNumbers title="employment.py"
+# 1
+def employ_household_process(self):
+    """ Look to employ an unemployed household """
+    unemployed_households = list(
+        filter( # Filter for the unemployed.
+            lambda obj: obj.is_employed == False,
+            # Households AgentSet.
+            self.model.get_agents_of_type(Household)
+        )
+    )
+
+    # Employ one agent at a time, for the moment.
+    if len(unemployed_households) > 0:
+        new_employee = self.random.choice(unemployed_households)
+        return new_employee
+    else:
+        sys.exit("No unemployed households to employ! Exiting.")
+```
+
+### Household Employment by Type (A Draft)
+
+How employment might apply to Household agents by class *type*.
+
+Household agents have attributes which, among others, include *equity* and *type*. In every step, a Household agent will record its accumulated equity (wealth). Households belong to one of three *type* divisions; alpha, beta and gamma. To which division a Household belongs (at every step) will depend on its wealth that is some percentage greater or less than the `Household.average_wealth` of all Household agents in the current step.
+
+Producer agents receive an equal share of Government expenditure at the beginning of every step. Household agents are available for employment. Each Producer will choose to employ (by random choice) an unemployed alpha Household agent seventy-five percent of the time. Failing to find an unemployed alpha, a beta Household is sought. If all beta Households are employed, gamma Households are sought by producers still looking to employ.

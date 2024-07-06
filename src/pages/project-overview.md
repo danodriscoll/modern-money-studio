@@ -4,7 +4,7 @@ hide_table_of_contents: true
 
 # Project
 
-Learning how to hedge a Gilt edged Portfolio: An agent-based model and data analysis project.
+An exploration of options on Gilt futures: An agent-based teaching model and data analysis project.
 
 :::info A Modern Money System
 

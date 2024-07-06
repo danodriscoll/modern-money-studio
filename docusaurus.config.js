@@ -9,7 +9,7 @@ import {themes as prismThemes} from 'prism-react-renderer';
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'Modern Money Studio',
-  tagline: 'Learning how to hedge a Gilt edged portfolio: An agent-based model and data analysis project.',
+  tagline: 'Options on Gilt Futures: An Agent-Based Teaching Model and Data Analysis Project.',
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here

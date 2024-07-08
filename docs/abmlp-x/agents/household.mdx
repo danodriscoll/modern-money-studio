@@ -125,7 +125,7 @@ Using an example model test run to compare the tax to be returned under either t
 
 ### Taxation Strategy
 
-The effect of any taxation strategy that results in a payment percentage of less than 1 - `payment_percentage < 1` - (see household *Taxation Strategy* logic) can be similar to what Godley & Lavoie (G&L) remind us about the interest rate on page 160 of their book, Monetary Economics:
+The effect of any taxation strategy that results in a payment percentage of less than 1 - `payment_percentage < 1` - (see household agent logic) can be similar to what Godley & Lavoie (G&L) remind us about the interest rate on page 160 of their book, Monetary Economics:
 
 A key feature of the models (see ABMSIM and ABMPC tests) presented so far is that pure government expenditures are assumed to be exogenous. Still there is no reason to believe that pure government expenditures are impervious to what is going on in the rest of the economy. G&L describe in detail the initial negative effects of higher interest rates on the Government budget deficit; effects that are eventually reversed in the early models where Government expenditures were impervious to the apparition of larger budget deficits. ..But this may not necessarily be so. Atul Sood (1999) has shown that high real interest rates lead to higher Government deficits in the short run, as must obviously be the case, but he has also shown that these higher interest rates often lead to reduced primary deficits, that is to higher primary surpluses.
 
@@ -133,29 +133,33 @@ In other words, at some point, when the deficit gets too large, the Government w
 
 ## The Portfolio Decision
 
-The interest rate offered will affect the composition of a household agent's asset portfolio. Model households now have a third financial asset in which to invest. Household agents will choose, based on their expectations and liquidity preferences, to allocate wealth between money, bills and long-term government bonds.
+The interest rate offered will affect the composition of a Household agent's asset portfolio. Model households now have a third financial asset in which to invest. Household agents will choose, based on their expectations and liquidity preferences, to allocate wealth between money, bills and long-term government bonds.
 
 ### Long-Term Bonds
 
 View the long-term [bond framework](https://docs.google.com/spreadsheets/d/1_3DX1j2vghMV8354_DmjBqt3wyg2AwMdvVSd2qtlaC4/edit#gid=1976813024).
 
-**Mirroring Godley & Lavoie (G&L) pp 133 — 135**
+**Mirroring Godley & Lavoie (G&L) pp 133 - 135**
 
-When household agents make their long-term bond decisions, three features matter. First households are concerned with the price that the long-term bond fetches in the current period, for this defines the yield of the asset which will arise in the next period (model step). Second, what also matters is the expected price of the bond in the next period, when it will be possible to sell the bond. These two prices help define what we shall call the pure expected rate of return on bonds (ERrbL). The third factor is the confidence with which households hold their expectations about future bond prices. In a model where there may be a multiplicity of household agent opinions, it is a measure of the weight that households investors attribute to the validity of their expectations.
+When households make their long-term bond decisions, three features matter. First, they are concerned with the price that the long-term bond fetches in the current period, for this defines the yield of the asset which will arise in the next period (model step). Second, what also matters is the expected price of the bond in the next period, when it will be possible to sell the bond. These two prices help define what we shall call the pure expected rate of return on bonds (ERrbL). The third factor is the confidence with which households hold their expectations about future bond prices. In a model where there may be a multiplicity of household agent opinions, it is a measure of the weight that households investors attribute to the validity of their expectations.
 
-#### On Agents and Rate Expectations Logic
+### On Agent Expectations
 
-In every step, Households interact with other Households to discuss their expected rate of return (ERrbL) for the next period (step). One third of Households created will predict a higher ERrbL 33 percent of the time (on average), a lower ERrbL 33 percent of the time (on average) leaving the default expectation of ERrbL to remain the same as it is in the current step. The next third of Households factor the base rate set for the previous five steps into their expectations logic. The final third of Households created have access to previous rates in addition to logic that employs model system velocity and acceleration, that is, the new bills issued by Government as a percentage of national income in every previous step.
+In every step, Households think about the rate of return (ERrbL) they expect to see in the next period (step). One third of Households created will predict a higher ERrbL 33 percent of the time (on average), a lower ERrbL 33 percent of the time (on average) leaving the default expectation of no change in the next step. A third of Households will factor the base rate that has been set for the previous five steps into their expectations logic. Another third of Households have access to both previous rates and logic that employs model (macro) system *velocity* and *acceleration*, that is, the rate at which the Government has been issuing new bills as a percentage of national income.
 
-#### Opinions: Wealth Perception & Taxation
+### Agents & Opinions
 
-Household agents think about their overall wealth and taxation. To assist thinking, Households discuss their wealth with other Households. Though it may only communicate with another of the same type, a Household has no preference for which other agent it will contact. Agents communicate on a random choice basis. A feature of Household ‘wealth’ discussions: When contacted, there is a ten percent chance the Household spoken to will inform that its wealth is between 1 percent and 5 percent greater than the actuality. A five percent chance it will say it is between 1 percent and 5 percent less wealthy. Households will accurately state their wealth, on average, eighty-five percent of the time.
+To assist thinking, Households communicate their rate expectation to other Households. Though it may only communicate with another of the same type (alpha, beta or gamma), a Household has no preference for which other agent it will contact. A feature of Household discussions about its rate expectation for the next period: When contacted, there is a ten percent chance the Household spoken to will inform that its rate expectation is between 1 percent and 5 percent greater than the actuality. A five percent chance it will say its rate expectation is between 1 percent and 5 percent lower than the actuality. Households will accurately state their rate expectation for the next period, on average, eighty-five percent of the time.
 
-*Household wealth by type showing mutually exclusive possibilities a Household will advocate for a lower rate of taxation*
-| Wealth in Current Step            | Alpha Household    | Beta Household    | Gamma Household   |
-| :-------------------------------- | :----------------- | :---------------- | :---------------- |
-| Is > Own Previous Step Wealth     | 80 to 85% of time  | 70 to 75% of time | 60 to 65% of time |
-| Is >= Other Household Wealth      | 86 to 95% of time  | 76 to 85% of time | 66 to 75% of time |
-| Is < Other Household Wealth by 5% | 96 to 100% of time | 86 to 95% of time | 76 to 85% of time |
+*Mutually exclusive possibilities a Household will match the rate expectation of another Household agent.*
+| Rate Expectation (RE) in Current Step | Alpha Household | Beta Household | Gamma Household |
+| :------------------------------------ | :-------------- | :------------- | :-------------- |
+| Other Agent RE > Agent RE               | 10% of time     | 15% of time    | 20% of time     |
+| Other Agent RE < = Agent RE              | 15% of time     | 20% of time    | 25% of time     |
+| Other Agent RE < Agent RE               | 20% of time     | 25% of time    | 30% of time     |
+
+### Gilt Options Strategy
+
+Households will not adjust their money asset portfolios based on a change in their rate expectation. A Household will make a portfolio adjustment if, and only if, the Central bank has made a base rate adjustment in the previous step. Expectations do, however, feed into current step calculations made by all Households as part of their Gilt future options strategy (a strategy that is developed but not monetarily *accounted* for in the model).
 
 View Household agent [behavioural logic](/blog/tags/household).

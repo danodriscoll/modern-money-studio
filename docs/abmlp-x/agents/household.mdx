@@ -16,13 +16,26 @@ At every step a Household will decide on the amount of (wage) taxation it will p
     <div>
         ```python showLineNumbers title="household.py"
         class Household(mesa.Agent):
-            """A Household agent."""
+            """A Household agent.
+
+            Agent 'Information Privilege'. For 'bond expectations' strategy:
+            Weights = [10, 20, 30]: Total Weight = 60
+            Privs = ["high", "medium", "low"]
+
+            Probability 'high': 10/60 = 0.166 (16.6%)
+            Probability 'medium': 20/60 = 0.333 (33.3%)
+            Probability 'low': 30/60 = 0.5 (50%)            
+            """
 
             def __init__(self, num_household, unique_id, model):
                 super().__init__(unique_id, model)
                 
                 self.breed = "Household"
                 self.type = "gamma" # The default Household agent 'type'.
+                self.information_privilege = self.random.choices(
+                    ['high', 'medium', 'low'],
+                    weights = [10, 20, 30])[0]
+
                 self.period = 0 # Model run step.
 
                 # (W_Ns) Wage supplied.
@@ -143,9 +156,9 @@ View the long-term [bond framework](https://docs.google.com/spreadsheets/d/1_3DX
 
 When households make their long-term bond decisions, three features matter. First, they are concerned with the price that the long-term bond fetches in the current period, for this defines the yield of the asset which will arise in the next period (model step). Second, what also matters is the expected price of the bond in the next period, when it will be possible to sell the bond. These two prices help define what we shall call the pure expected rate of return on bonds (ERrbL). The third factor is the confidence with which households hold their expectations about future bond prices. In a model where there may be a multiplicity of household agent opinions, it is a measure of the weight that households investors attribute to the validity of their expectations.
 
-### On Agent Expectations
+### On Agent Expectations & Information Privilege
 
-In every step, Households think about the rate of return (ERrbL) they expect to see in the next period (step). One third of Households created will predict a higher ERrbL 33 percent of the time (on average), a lower ERrbL 33 percent of the time (on average) leaving the default expectation of no change in the next step. A third of Households will factor the base rate that has been set for the previous five steps into their expectations logic. Another third of Households have access to both previous rates and logic that employs model (macro) system *velocity* and *acceleration*, that is, the rate at which the Government has been issuing new bills as a percentage of national income.
+In every step, Households think about the rate of return (ERrbL) they expect to see in the next period (step). On average, 50 percent of Households created will predict a higher ERrbL 33 percent of the time (on average), a lower ERrbL 33 percent of the time with the remaining expectation being no change in the next step. On average, 33 percent of Households will include the base rate that has been set in the previous five steps into their expectations logic. An average of 16 percent of the Household population will have access to both historical rates and logic that employs model (macro) system *velocity* and *acceleration*, that is, the rate at which the Government has been issuing new bills as a percentage of national income.
 
 ### Agents & Opinions
 
@@ -154,9 +167,9 @@ To assist thinking, Households communicate their rate expectation to other House
 *Mutually exclusive possibilities a Household will match the rate expectation of another Household agent.*
 | Rate Expectation (RE) in Current Step | Alpha Household | Beta Household | Gamma Household |
 | :------------------------------------ | :-------------- | :------------- | :-------------- |
-| Other Agent RE > Agent RE               | 10% of time     | 15% of time    | 20% of time     |
-| Other Agent RE < = Agent RE              | 15% of time     | 20% of time    | 25% of time     |
-| Other Agent RE < Agent RE               | 20% of time     | 25% of time    | 30% of time     |
+| Other Agent RE > Agent RE             | 10% of time     | 15% of time    | 20% of time     |
+| Other Agent RE < = Agent RE           | 15% of time     | 20% of time    | 25% of time     |
+| Other Agent RE < Agent RE             | 20% of time     | 25% of time    | 30% of time     |
 
 ### Gilt Options Strategy
 

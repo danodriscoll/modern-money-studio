@@ -4,96 +4,23 @@ sidebar_position: 2
 
 # ABMPC
 
-Agent-Based Portfolio Choice is an interpretation of the second sectoral system described by G&L. View the model [accounting](https://docs.google.com/spreadsheets/d/1f2picRBpByjb77flxEGjCrZ9Ych3ctrqBSqy90PR6LM/edit?usp=sharing).
+Agent-Based Portfolio Choice (ABMPC) is an interpretation of the second sectoral system described by G&L. View the model [accounting](https://docs.google.com/spreadsheets/d/1f2picRBpByjb77flxEGjCrZ9Ych3ctrqBSqy90PR6LM/edit?usp=sharing).
 
-The model sees household agents make a portfolio choice between non-interest bearing (high-powered) money bills and interest bearing bills akin to government treasury bills. The interest rate offered will affect the composition of a household agent’s asset portfolio.  That is, the proportion of interest-bearing assets to money an agent will decide to hold.
-
-## Household Agent Comments
-
-<details>
-  <summary>Household Code Comments</summary>
-  <div>
-    <div>
-        ```python showLineNumbers title="agents.py"
-        class Household(Agent):
-            self.breed = "Household"
-
-            def step(self) -> None:
-                '''
-                ABMPC Household Functions (each and every iteration):
-                1 Calculate disposable income, the wage & interest received minus tax.
-                2 Consumption Decision: Decide how much to save out of income.
-                3 Portfolio Decision: Calculate wealth and allocate between money and bills.
-                    Two Traditions:
-                    Quantity theory of money: Link money balances to the flow of income.
-                    Liquidity preference: Make money balances some proportion of wealth.
-                '''
-
-                # 2
-                '''
-                G&L Equations, p104:
-
-                α1 : Propensity to consume out of regular income.
-                α2 : Propensity to consume out of past wealth.
-                λ : Reaction parameters in the portfolio choice of households.
-                λ0 : Proportion of wealth held in bills.
-                (1 - λ0) : Proportion of wealth held in central bank deposits (high-powered money).
-
-
-                (4.4) V = V_-1 + (YD - C):
-                New wealth is past wealth plus disposable income minus consumption.
-
-                (4.5) C = α1 * YD + α2 * V_-1:
-                        Propensity to consume out of disposable income
-                        + propensity to consume out of past wealth.
-                (4.6) Hh = V - Bh
-                (4.7) Bh/V = λ0 + λ1 * r - λ2 * (YD/V)
-                '''
-
-                # 3
-                '''
-                Proportion of money balances modulated by two elements:
-                    1: The rate of return r on bills.
-                    2: The level of disposable income (YD) relative to wealth.
-
-                    G&L p104: The share of wealth which agents wish to hold in the
-                    form of money deposits is negatively related to the interest rate
-                    and positively related to disposable income.
-
-                    Reverse: The share of wealth which agents wish to hold in the form
-                    of bills is positively related to the interest rate and negatively
-                    related to disposable income.
-
-                    (Translation: 1. The share of wealth an agent will wish to hold as
-                    bills will increase with a higher interest rate. Therefore, a lower
-                    proportion of wealth will be held as deposits. If the interest rate
-                    decreases, an agent will lower the proportion of their wealth held as bills,
-                    which will increase, as a residual, the proportion held as deposits.)
-
-                    (Translation: 2. The lower the level of disposable income to wealth,
-                    the higher the proportion of their wealth an agent will wish to hold as bills.
-                    The higher the level of disposable income to wealth, the lower the proportion
-                    of their wealth an agent will wish to hold as bills, and as a residual,
-                    the higher will be the proportion held as deposits.)
-                '''
-        ```
-    </div>
-  </div>
-</details>
+The model sees Household agents make a portfolio choice between non-interest bearing (high-powered cash) money and interest bearing bills akin to Government treasury bills. The interest rate offered will affect the composition of a Household agent's asset portfolio. That is, the proportion of interest-bearing assets to cash money a Household will decide to hold.
 
 ## The Portfolio Decision
 
-Mirroring Godley & Lavoie (G&L) pp 103 — 105.
+*Mirroring Godley & Lavoie (G&L) pp 103 - 105.*
 
-Households make a two stage decision.  In the first step, households decide how much they will save out of their income.  In the second step, households decide how they will allocate their wealth, including their newly acquired wealth.  The two decisions are made within the same model iteration.  However, the two decisions are distinct and of a hierarchical form.  The consumption decision determines the size of the end of period stock of wealth; the portfolio decision determines the allocation of the stock of wealth.
+Households make a two stage decision. In the first step, households decide how much they will save out of their income.  In the second step, households decide how they will allocate their wealth, including their newly acquired wealth.  The two decisions are made within the same model iteration. However, the two decisions are distinct and of a hierarchical form. The consumption decision determines the size of the end of period stock of wealth; the portfolio decision determines the allocation of the stock of wealth.
 
-How is wealth allocated between money and bonds?  Two traditions have prevailed.  One related to the quantity theory of money, links money balances to the flow of income and the other, of more recent vintage, makes money balances some proportion of total wealth.  The latter is related to the Keynesian notion of liquidity preference.  The lower is liquidity preference, the lower is the money to wealth ratio.
+How is wealth allocated between money and bonds? Two traditions have prevailed. One related to the quantity theory of money, links money balances to the flow of income and the other, of more recent vintage, makes money balances some proportion of total wealth.  The latter is related to the Keynesian notion of liquidity preference. The lower is liquidity preference, the lower is the money to wealth ratio.
 
-The transactions demand for money and the liquidity preference story may both be comprised within a single model.  Households wish to hold a certain proportion λ0 of their wealth in the form of interest-bearing bills, and hence, because there is no third asset, a proportion equal to (1 - λ0) in the form of money.  This proportion, however, is modulated by two elements, the rate of return on Treasury bills and the level of disposable income relative to wealth.
+The transactions demand for money and the liquidity preference story may both be comprised within a single model. Households wish to hold a certain proportion λ0 of their wealth in the form of interest-bearing bills, and hence, because there is no third asset, a proportion equal to (1 - λ0) in the form of money. This proportion, however, is modulated by two elements, the rate of return on Treasury bills and the level of disposable income relative to wealth.
 
 ## Wealth Allocation Function
 
-Allocation function *PropIntBills* incorporates an interpretation of G&L's Brainard-Tobin formula, slightly amended. ABMPC can run with multiple producers and households. In this system, household agents may face period(s) of unemployment with no knowledge of when they may be employed once again. If unemployed, an agent's disposable income will fall, leading (probably) to the denominator in the *wealth to income* calculation becoming immediately smaller than the numerator; blowing up G&L's interpretation of Brainard-Tobin. Therefore, if unemployed, a household agent will adjust its allocation of interest-bearing assets to money deposits based on a *wealth to system average income* calculation.
+The allocation function *PropIntBills* incorporates an interpretation of G&L's Brainard-Tobin formula, slightly amended. ABMPC can run with multiple producers and households. In this system, household agents may face period(s) of unemployment with no knowledge of when they may be employed once again. If unemployed, an agent's disposable income will fall, leading (probably) to the denominator in the *wealth to income* calculation becoming immediately smaller than the numerator; blowing up G&L's interpretation of Brainard-Tobin. Therefore, if unemployed, a household agent will adjust its allocation of interest-bearing assets to money deposits based on a *wealth to system average income* calculation.
 
 ```python showLineNumbers title="abmpc-portfolio-function.py"
 """
@@ -141,16 +68,174 @@ def PropIntBills(employed, Bhd, V, YD, YD_average, last_rb, rb):
     return prop_bills_this
 ```
 
-## Steady State System
+## Test Output
 
-:::tip Test Data App
+:::tip Steady State System
 
-Visit the shareable Hugging Face space, [abmpc-test](https://danodrisc-abmpc-test.hf.space), to view the test output of agent-based model simple.
+Visit the shareable Hugging Face space, [abmpc-test](https://danodrisc-abmpc-test.hf.space), to view the test output of agent-based portfolio choice.
 
 :::
 
-:::info System Context
+## Energy Use
 
-View a sketch of ABMPC within a [macro-financial](https://www.data-reports.net/studio-sketch/public-private-finance.html) context.
+An Environment agent sets the scene for a simplistic interpretation of the energy requirements of the system, specifically, the energy required by Producer agents in ABMPC. The code summary details the properties and actions behind stock and flow energy sources, as well as the cumulative negative externality returned.
+
+<details>
+    <summary>ABMPC Environment Agent</summary>
+    <div>
+        <div>
+            ```python showLineNumbers title="environment.py"
+            class Environment(mesa.Agent):
+                """The Environment agent."""
+
+                def __init__(self, unique_id, model):
+                    super().__init__(unique_id, model)
+                    
+                    self.breed = "Environment"
+                    self.model_current_step = 0 # Model run step.
+                    
+                    # See https://en.wikipedia.org/wiki/Names_of_large_numbers
+                    # (10^21) One sextillion units of available (stock) fossil hydrocarbon energy.
+                    self.units_stock_energy = Decimal(1000_000_000_000_000_000_000)
+
+                    # Stock energy geopolitics:
+                    # The 'ase' relates to the availability of stock (fossil hydrocarbon) energy.
+                    # A number; from least to most available: 0.01 >= 'ase' <= 1.0.
+                    self.availability_stock_energy = Decimal(1)
+
+                    # Environment (Negative Externality):
+                    self.cumulative_negative_externality = Decimal(0) # Use of stock energy.
+                    # 3% of stock energy is environmental negative externality.
+                    self.cumulative_negative_externality_rate = Decimal(0.03)
+
+                    self.flow_energy_base = Decimal(5) # Start with an amount of renewable energy (units).
+                    self.units_flow_energy = Decimal(0) # Units of available (stored) renewable energy.
+
+                def step(self):
+                    """
+                    Functions (each and every step):
+                    1. Add newly generated (renewable) energy.
+                    """
+
+                    # See https://www.statista.com/outlook/io/energy/renewable-energy/worldwide
+                    growth_flow_energy = Decimal(0.0388) # 3.88%
+
+                    self.units_flow_energy += self.flow_energy_base # Add newly generated (renewable / flow) energy.
+                    self.flow_energy_base = (self.flow_energy_base + (self.flow_energy_base
+                                                                    * growth_flow_energy))
+            ```
+        </div>
+    </div>
+</details>
+
+<details>
+  <summary>ABMPC Producer Agent - Energy</summary>
+  <div>
+    <div>
+        ```python showLineNumbers title="producer.py"
+        class Producer(mesa.Agent):
+            """A Producer agent."""
+
+            def __init__(self, unique_id, model):
+                super().__init__(unique_id, model)
+                
+                self.breed = "Producer"
+
+                # Energy use
+                self.flow_energy_used = Decimal(0)
+                self.stock_energy_used = Decimal(0)
+
+            def step(self):
+                """
+                Producer Functions (each and every step):
+                1 Choose and employ a household agent.
+                2 Connect with the Environment and account for government and household consumption demands.
+                3 Communicate to employed household agents their wage this step.
+                """
+
+                #1
+                household = self.employ_household_process()
+                household.is_employed = True # Employ the chosen household.
+
+                #2
+                environment = self.model.get_agents_of_type(Environment)[0] # The Environment.
+
+                government_supplied_expenditure = Decimal(0)
+                household_supplied_expenditure = Decimal(0)
+
+                government_supplied_expenditure = self.government_expenditure_supplied # A wage includes services supplied to government (Gs) in response to government demands.
+                household_supplied_expenditure = self.consumption_goods_supplied # A wage includes services supplied to households (Cs) in response to household demands.
+
+                """
+                Calculate energy required to provide the service and stock polution returned.
+                """
+                # One monetary unit of demands will require one unit of energy to fulfil.
+
+                # Energy required based on combined (monetary) government agent and consumer agents desires.
+                total_energy_required = (government_supplied_expenditure + household_supplied_expenditure)
+                energy_shortfall = 0
+
+                # Opening energy flows.
+                opening_flow_energy = environment.units_flow_energy # To calculate flows of 'flow' (renewable) energy.
+                opening_stock_energy = (environment.units_stock_energy * environment.availability_stock_energy) # To calculate flows of 'stock' (fossil hydrocarbon) energy.
+
+                # Use stock (fossil hydrocarbon) energy to fill the first 5% of total energy required.
+                if environment.units_stock_energy > 0: # environment has remaining stock (fossil hydrocarbon) energy.
+                    environment.units_stock_energy -= (total_energy_required * Decimal(0.05)) # Fill the portion of total energy required (for maintenance) from stock energy.
+                    total_energy_required = total_energy_required * Decimal(0.95)
+                else:
+                    sys.exit("Model exit. No available stock energy for system maintenance.")
+
+                # Use all available flow (renewable) energy and make up any shortfall with stock (fossil hydrocarbon) energy.
+                if environment.units_flow_energy > 0 and (total_energy_required <= environment.units_flow_energy): # No shortfall in flow energy
+                    environment.units_flow_energy -= total_energy_required
+                elif environment.units_flow_energy > 0 and (total_energy_required > environment.units_flow_energy): # There is a shortfall of up to 100% of 'total_energy_required'.
+                    energy_shortfall = total_energy_required - environment.units_flow_energy
+                    _flow_energy_remaining = environment.units_flow_energy
+                    environment.units_flow_energy -= _flow_energy_remaining # (will be 0).
+
+                if environment.units_stock_energy > 0 and (energy_shortfall <= environment.units_stock_energy): # Environment has remaining stock (fossil hydrocarbon) energy.
+                    environment.units_stock_energy -= energy_shortfall # Shortfall might be 0 if total energy requirement has been met by flow energy.
+                else:
+                    sys.exit("Model exit. No available stock energy to fill system shortfall.")
+
+                # Closing energy flows.
+                closing_flow_energy = environment.units_flow_energy  # To calculate flows of 'flow' (renewable) energy.
+                closing_stock_energy = environment.units_stock_energy  # To calculate flows of 'stock' (fossil hydrocarbon) energy.        
+
+                # Flow of energy used by the Producer agent this step.
+                self.flow_energy_used = opening_flow_energy - closing_flow_energy
+                self.stock_energy_used = opening_stock_energy - closing_stock_energy
+
+                # Polution returned to environment.
+                environment.cumulative_negative_externality += self.stock_energy_used * environment.cumulative_negative_externality_rate
+        ```
+    </div>
+  </div>
+</details>
+
+#### Steady State System
+
+One monetary unit of demands from either Government or Households will require one unit of energy to fulfil. This is a test model run (170 steps) showing simplistic Producer energy use dynamics.
+
+##### Model Run Parameters
+
+- Run Name: ABMPC Test
+- Government Expenditure: 20 units per step
+- Taxation rate: 20% (Flat rate; all household agents)
+- Coupon Rate: 0%
+- Interest Rate: 0%
+
+:::tip Energy Test Chart
+
+View the [abmpc energy](https://www.data-reports.net/modern-money-studio/abmpc-energy-test.html) requirement chart.
+
+:::
+
+## System Context
+
+:::info A Rough Sketch
+
+View a sketch of ABMPC within a simple [macro-financial](https://www.data-reports.net/modern-money-studio/studio-sketch/public-private-finance.html) context.
 
 :::

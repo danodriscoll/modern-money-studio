@@ -1,0 +1,144 @@
+---
+sidebar_position: 1
+title: Modern Turn
+hide_table_of_contents: false
+---
+
+## The Modern Turn in England
+
+A United Kingdom of Great Britain and Northern Ireland (UK-GB) perspective.
+
+:::info A Modern Money System
+
+In 1694, the recently formed Bank of England gathered together 1268 individuals to subscribe to buy 1.2 million pounds of stock yielding 8%, designed to fund King William's war with France. The bonds became known as Gilts because the certificates had gilt edges to them. In conventional gilts, the Government will pay the holder a coupon, or cash payment, every six months until maturity.
+
+:::
+
+## Model Contexts
+
+Model Government and Central Bank agents consume real-world UK expenditure and interest rate data respectively.
+
+### ABMPC
+
+#### Early Modern System
+
+> "In contrast to the centuries during which it had charged for the money, the (English) government now paid for the currency it enabled."
+>
+> — <cite>DESAN, C. (2015). Making Money: Coin, Currency, and the Coming of Capitalism. Oxford University Press. p. 296</cite>
+
+#### Model Run Parameters
+
+UK economic time-series data from the beginning of the financial year 1698 to 1974.
+
+- Government Expenditure (Yearly): [Millennium Dataset](https://www.bankofengland.co.uk/statistics/research-datasets): Sheet A27. Central Government Revenue and Expenditure: Great Britain 1688-1801, United Kingdom 1801-2016. (Total Expenditure 'TME' minus interest payments.)
+- Taxation Rate: 37%
+- Interest Rate 0%
+    - For reference, if running with interest rates. BoE: Rate on Interest Bearing Government money Issued: Millennium Dataset: Sheet A31. Nominal and real interest rates, asset prices and yields.
+- Coupon Rate: 0%
+
+#### Military Events
+
+Perrett, B. (2007) *British Military History For Dummies*. Chichester: John Wiley & Sons. ISBN: [9780470032138](https://www.goodreads.com/book/show/327534.British_Military_History_For_Dummies)
+
+:::tip EMS Data App
+
+Visit the [early modern system](https://danodrisc-ems-app.hf.space) data app.
+
+:::
+
+### ABMLP-X
+
+A simple analysis of the *velocity* and *acceleration* of a Government money system - the new bills issued - alongside UK Gilt yield dynamics from the **second quarter of 1974** through to the **fourth quarter of 2023**.
+
+```python showLineNumbers title="velocity_acceleration.py"
+"""
+Velocity & Acceleration of Model Bills Issued:
+
+Change in bills issued, from one period to the next,
+as percentage of national income.
+"""
+import numpy as np
+
+velocity_bills = np.diff(df["bills_issued"])
+df["velocity_bills_issued"] = ((abs(velocity_bills)
+                                / df["national_income"])
+                                * 100)
+
+acceleration_bills = np.diff(df["velocity_bills_issued"])
+```
+
+#### 1. The Velocity and Acceleration of Supply: New Bills Issued (Quarterly)
+
+##### Model Run Parameter Inputs
+
+A model run free from interest payments on Government money.
+
+- Model: ABMLP-X
+- Government Expenditure: See *Model Input: Expenditures* from the [resource](/uk-gb-perspective/resource) page.
+- Taxation rate: 37% (Flat rate; all household agents)
+- Bond (Consol) Coupon Rate: 0%
+- Interest Rate: 0%
+
+:::tip Model Run Charts
+
+1. View the [velocity](https://www.data-reports.net/modern-money-studio/virgo-420-23-05-2024-analysis-velocity.html) of model bills issued.
+2. View the [acceleration](https://www.data-reports.net/modern-money-studio/virgo-420-23-05-2024-analysis-acceleration.html) of model bills issued.
+
+:::
+
+The *velocity* plot shows two periods, among others, where the *velocity* of model bills leads to a similar reaction in the real-world Gilt yield. The period between July 1997 and July 2003, however, shows the trend *velocity* of model bills issued increasing while the trend Gilt yield is decreasing. When we look at the *acceleration* of model bills issued, we see that across the same period there is actually a *negative acceleration* trend occurring. The *velocity* of bills issued may be increasing, but the system is experiencing *negative acceleration* - to which Gilt yields may be reacting.
+
+#### 2. The Velocity and Acceleration of Supply: New Bills Issued at Interest (Quarterly)
+
+A model run that includes interest payments on Government money assets.
+
+##### Model Run Parameter Inputs
+
+- Model: ABMLP-X
+- Government Expenditure: See *Model Input: Expenditures* from the [resource](/uk-gb-perspective/resource) page.
+- Taxation rate: 37% (Flat rate; all household agents)
+- Bond (Consol) Coupon Rate: 1%
+- Interest (Base) Rate: See *Model Input: Interest Rates* from the [resource](/uk-gb-perspective/resource) page.
+
+:::tip Model Run Charts
+
+1. The [velocity](https://www.data-reports.net/modern-money-studio/libra-498-07-06-2024-analysis-velocity.html) of Government bills issued.
+2. The [acceleration](https://www.data-reports.net/modern-money-studio/libra-498-07-06-2024-analysis-acceleration.html) of Government bills issued.
+3. The model [bond price](https://www.data-reports.net/modern-money-studio/libra-498-07-06-2024-analysis-bond-price.html).
+4. The model [bond yield](https://www.data-reports.net/modern-money-studio/libra-498-07-06-2024-analysis-bond-yield.html)
+
+:::
+
+#### 3. The Velocity of Supply: New Bills Issued at Interest (Monthly)
+
+Showing a calculated [rolling average](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.rolling.html) (window=3) velocity of a Government money system - the new bills issued - alongside UK Gilt yield dynamics from **March 1974** through to the **May of 2024**. The coupon rate on bonds (consols) are now calculated as the average of the Central Bank base rate set across the previous 3 steps.
+
+```python showLineNumbers title="government-methods.py"
+def get_coupon_rate(self, central_bank):
+    """
+    Set the coupon rate on consols (bonds) to the average of
+    the Central Bank base rate set across the previous 3 steps.
+    """
+
+    # Add the latest base rate to the list.
+    self.cb_rates_list.append(central_bank.current_base_rate)
+
+    def get_averages(sample):
+        return st.mean(sample)
+
+    mean_rate = get_averages(self.cb_rates_list[-3:])
+
+    return mean_rate
+```
+
+##### Model Run Parameter Inputs
+
+- Model: ABMLP-X
+- Government Expenditure: See *Model Input: Expenditures* from the [resource](/uk-gb-perspective/resource) page.
+- Taxation rate: 37% (Flat rate; all household agents)
+- Bond (Consol) Coupon Rate: (See the `get_coupon_rate` function).
+- Interest (Base) Rate: See *Model Input: Interest Rates* from the [resource](/uk-gb-perspective/resource) page.
+
+:::tip Model Run Charts
+
+1. The rolling average [velocity](https://www.data-reports.net/modern-money-studio/bills-velocity-rolling-average.html) of Government bills issued.

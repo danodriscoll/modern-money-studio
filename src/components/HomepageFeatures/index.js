@@ -5,29 +5,29 @@ import styles from './styles.module.css';
 
 const FeatureList = [
   {
-    title: 'Government Money Model',
-    Svg: require('@site/static/img/prompt_icon.svg').default,
+    title: 'Government Money Models',
+    Svg: require('@site/static/img/model_icon.svg').default,
     description: (
       <>
-        View the <Link to="/docs/category/early-models">early models</Link> or head to the latest model, <Link to="/docs/category/abmlp-x">ABMLP-X</Link>. Peruse evolving <Link to="/blog/tags/agent-logic">agent logic</Link>.
+        The <Link to="category/early-models">early models</Link>, plus an introduction to the latest model, <Link to="/category/abmlp-x">ABMLP-X</Link>.
       </>
     ),
   },
   {
-    title: 'Data Analysis Tools',
-    Svg: require('@site/static/img/ai_icon.svg').default,
+    title: 'UK-GB Perspective',
+    Svg: require('@site/static/img/uk_report_icon.svg').default,
     description: (
       <>
-        An overview of the <Link to="/docs/category/tools">tools</Link> used to analyse both model and real-world economic time-series data.
+        The model consumes UK economic time-series. View a static <Link to="/uk-gb-perspective/modern-turn">UK-GB perspective</Link>.
       </>
     ),
   },
   {
-    title: 'Domain Analysis Output',
-    Svg: require('@site/static/img/sterling_currency_icon.svg').default,
+    title: 'Gilt Edged Mini',
+    Svg: require('@site/static/img/gilt_edged_mini_icon.svg').default,
     description: (
       <>
-        A simple assortment of data <Link to="/blog/tags/analysis">analysis output</Link>.
+        A bounded exploration of a Gilt edged domain. View a <Link to="/gilt-edged-mini">mini</Link> model development.
       </>
     ),
   },

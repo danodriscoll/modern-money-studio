@@ -9,7 +9,7 @@ import {themes as prismThemes} from 'prism-react-renderer';
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'Modern Money Studio',
-  tagline: 'Options on Gilt Futures: An Agent-Based Teaching Model and Data Analysis Project.',
+  tagline: 'Simple Agent-Based Teaching Models',
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
@@ -40,13 +40,16 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
+          sidebarCollapsed: false,
+          routeBasePath: '/', // Serve the docs at the site's root
           sidebarPath: './sidebars.js',
         },
-        blog: {
-          showReadingTime: false,
-          blogSidebarCount: 0,
-          postsPerPage: 5
-        },
+        blog: false, // Disable the blog plugin
+        // blog: {
+        //   showReadingTime: false,
+        //   blogSidebarCount: 0,
+        //   postsPerPage: 5
+        // },
         theme: {
           customCss: './src/css/custom.css',
         },
@@ -69,7 +72,7 @@ const config = {
       // Replace with your project's social card
       image: 'img/development_icon.png',
       navbar: {
-        title: 'Modern Money',
+        title: 'Modern Money Studio',
         logo: {
           alt: 'ModernMoney Logo',
           src: 'img/development_icon.png',
@@ -79,11 +82,11 @@ const config = {
             type: 'docSidebar',
             sidebarId: 'modelSidebar',
             position: 'left',
-            label: 'Models & Tools',
+            label: 'Models',
           },
-          {to: '/blog', label: 'Blog', position: 'left'},
-          {to: '/blog/tags', label: 'Tags', position: 'left'},
-          {to: '/project-overview', label: 'Project', position: 'right'},
+          // {to: '/blog', label: 'Blog', position: 'left'},
+          // {to: '/blog/tags', label: 'Tags', position: 'left'},
+          {to: '/gilt-edged-mini', label: 'Gilt Edged Mini', position: 'right'},
           {
             href: 'https://www.danielodriscoll.me.uk/',
             label: 'Personal Site',
